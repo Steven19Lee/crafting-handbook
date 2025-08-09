@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 
 use crate::entities::block::Block;
 use crate::entities::function::Function;
+use crate::entities::instruction::{insts_to_keys, InstOperandKey};
 use crate::entities::module::Module;
-use crate::entities::util::inst_operand_key::{insts_to_keys, InstOperandKey};
 use crate::entities::util::set_operation::{intersection_sets, union_sets};
 use crate::entities::value::Value;
 use crate::pass::analysis::cfg::ControlFlowGraph;
@@ -19,7 +19,9 @@ pub fn anticipate_expression_anaylsis(
     let mut pass = AnticipateExpressionPass::new(cfg, rpo);
     pass.process(func)
 }
-
+/// A expression is a anticipate in program point p if and only
+/// if every path from p to exits will evaluate expression and
+/// operand of expression is available at that time.
 pub struct AnticipateExpression {
     anticipate_expr_in: HashMap<Block, HashSet<InstOperandKey>>,
     anticipate_expr_out: HashMap<Block, HashSet<InstOperandKey>>,
@@ -120,7 +122,8 @@ impl<'a> AnticipateExpressionPass<'a> {
                 let mut inst_keys: HashSet<InstOperandKey> = Default::default();
                 for inst in &insts_in_order {
                     let inst_data = func.get_inst_data(*inst);
-                    if let Some(k) = inst_data.to_inst_operand_key() {
+                    let inst_key: Option<InstOperandKey> = inst_data.into();
+                    if let Some(k) = inst_key {
                         inst_keys.insert(k);
                     }
                 }

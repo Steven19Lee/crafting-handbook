@@ -2,5 +2,5 @@ func correct_module_after_parse (reg0: u16, reg1: u16) {
 block100:
   reg4 = add reg1 reg2
 block101:
-  reg5 = iconst i32 0
+  reg5 = iconst i32 [0]
 }

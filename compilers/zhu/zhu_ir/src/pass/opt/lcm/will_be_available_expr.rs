@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 
 use crate::entities::block::Block;
 use crate::entities::function::Function;
+use crate::entities::instruction::{insts_to_keys, InstOperandKey};
 use crate::entities::module::Module;
-use crate::entities::util::inst_operand_key::{insts_to_keys, InstOperandKey};
 use crate::entities::util::set_operation::{intersection_sets, union_sets};
 use crate::pass::analysis::cfg::ControlFlowGraph;
 use crate::pass::analysis::rpo::RevresePostOrder;

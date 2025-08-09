@@ -107,6 +107,11 @@ impl Function {
         self.mem_type.insert(mem_type, mem_type_data);
         mem_type
     }
+    pub fn create_constant(&mut self, constant_data: ConstantData) -> Constant {
+        let constant = Constant(self.constants.len() as u32);
+        self.constants.insert(constant, constant_data);
+        constant
+    }
 }
 /// Data mutation to function block. inherit from `layout` or `entities`
 /// or combine two structure to provide a more abstract interface.

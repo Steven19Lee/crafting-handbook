@@ -136,9 +136,9 @@ IR for educational purpose, just for fun.
 <ConstData>     := "[" <HexPairs> "]"
 <HexPairs>      := <HexPairs> <HexPair>
                 := <HexPair>
-<HexPair>       := <HexChar> <HexChar>
+<HexPair>       := "0x" <HexChar> <HexChar>
 <DecimalString> := ("+" | "-")? ("0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9")*
-<HexLiteral>    := ("+" | "-")? "0x" (<HexChar>)*
+<HexLiteral>    := ("+" | "-")? (<HexChar>)*
 <HexChar>       := "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "A" | "B" | "C" | "D" | "E" | "F"
 
 /// 4. Punctuator

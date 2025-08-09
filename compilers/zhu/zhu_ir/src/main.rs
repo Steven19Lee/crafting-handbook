@@ -8,10 +8,14 @@ use pass::analysis::cfg::cfg_anylysis;
 use pass::analysis::rpo::revrese_post_order_analysis;
 use pass::opt::lcm::lcm_opt;
 
+use crate::frontend::to_tokens;
 use crate::pass::opt::lcm::later::later_expression_anaylsis;
 use crate::pass::opt::lcm::used_expr::used_expression_anaylsis;
+use crate::pass::AnalysisPass;
 use formatter::format;
 use frontend::parse;
+use pass::analysis::use_chain::UseChainPass;
+use pass::opt::sscp::sscp_pass;
 use pass::FormatTable;
 
 use crate::pass::opt::lcm::postponable_expr::postponable_expression_anaylsis;
@@ -68,6 +72,15 @@ block3:
   ret
 }
 ";
+    let simple_sscp = "
+func simple_sscp (): u8 {
+block0:
+  reg0 = uconst u8 [ 0x01 0x01 ]
+  reg1 = uconst u8 [ 0x02 0x02 ]
+  reg2 = add reg0 reg1
+  ret reg2
+}
+";
     //     let lcm_complex_example = "
     // func lcm_complex_example (reg0: u8) {
     // block0:
@@ -99,15 +112,23 @@ block3:
     //   ret
     // }
     // ";
-    let mut module = parse(lcm_diamond);
+    println!("{:?}", to_tokens(simple_sscp));
+    let mut module = parse(simple_sscp);
     println!("{}", format(&module).as_str());
-    let module_id = module.get_module_id_by_symbol("lcm_diamond").unwrap();
+    let module_id = module.get_module_id_by_symbol("simple_sscp").unwrap();
     let func_id = module_id.to_func_id();
     let func = module.get_mut_function(func_id).unwrap();
-    let cfg = cfg_anylysis(func);
-    let rpo = revrese_post_order_analysis(&cfg);
+    let mut pass = UseChainPass::new();
+    let table = pass.process(func);
+
+    println!("Use Chain Table: {:#?}", table);
+
+    sscp_pass(func, &table);
+
+    // let cfg = cfg_anylysis(func);
+    // let rpo = revrese_post_order_analysis(&cfg);
     // let dom = domtree_analysis(&func, &cfg);
-    lcm_opt(&cfg, &rpo, func);
+    // lcm_opt(&cfg, &rpo, func);
     //
     // let func = module.get_function(func_id).unwrap();
     // println!("{}", anticipate_expr.format_table(func, &module));

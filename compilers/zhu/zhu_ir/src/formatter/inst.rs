@@ -16,7 +16,7 @@ impl Formatter {
                 let value_type = function.value_type(inst_result.unwrap().clone()).clone();
                 let constant_data = function.constants.get(constant).unwrap();
                 format!(
-                    "reg{} = {} {} {}",
+                    "reg{} = {} {} [{}]",
                     inst_result.unwrap().0,
                     opcode,
                     self.fmt_value_type(&value_type, function),

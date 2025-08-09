@@ -469,10 +469,11 @@ impl<'a> Parser<'a> {
                 let rewrite_dst = match self.lexer.get_token_kind() {
                     // Const
                     TokenKind::Iconst | TokenKind::Uconst | TokenKind::Fconst => {
+                        let opcode = map_token_to_opcode(self.lexer.get_token_kind());
                         self.lexer.next_token();
                         let value_type = self.parse_value_type();
                         let bytes = self.parse_const_data();
-                        self.create_builder().iconst_inst(bytes, value_type)
+                        self.create_builder().build_const_inst(opcode, bytes, value_type)
                     }
                     // Unary
                     TokenKind::Mov | TokenKind::Neg => {
@@ -762,6 +763,7 @@ impl<'a> Parser<'a> {
         while !match_tokens!(self.lexer, TokenKind::BracketRight | TokenKind::EOF) {
             bytes.push(self.parse_hex_string::<u8>());
         }
+        expect_token!(self.lexer, TokenKind::BracketRight);
         bytes
     }
     /// Parse immediate
@@ -804,9 +806,9 @@ impl<'a> Parser<'a> {
         T: FromStr,
     {
         if let TokenKind::HexString = self.lexer.get_token_kind() {
-            let value = self.lexer.get_source_string().parse::<T>();
+            let value = self.lexer.get_source_string()[2..].parse::<T>();
             self.lexer.next_token();
-            return value.unwrap_or_else(|_| panic!("[Error]: parse decimal string error."));
+            return value.unwrap_or_else(|_| panic!("[Error]: parse hex string error."));
         } else {
             unexpect_token!(self.lexer)
         }

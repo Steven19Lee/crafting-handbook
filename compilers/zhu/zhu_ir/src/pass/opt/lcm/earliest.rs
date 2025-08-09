@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 
 use crate::entities::block::Block;
 use crate::entities::function::Function;
+use crate::entities::instruction::InstOperandKey;
 use crate::entities::module::Module;
-use crate::entities::util::inst_operand_key::InstOperandKey;
 use crate::pass::opt::lcm::anticipate_expr::AnticipateExpression;
 use crate::pass::opt::lcm::will_be_available_expr::WillBeAvailableExpression;
 use crate::pass::{get_table_header, AnalysisPass, FormatTable};

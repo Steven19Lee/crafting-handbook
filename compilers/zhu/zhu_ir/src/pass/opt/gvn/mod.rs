@@ -1,8 +1,7 @@
 use crate::entities::block::Block;
 use crate::entities::function::Function;
-use crate::entities::instruction::Instruction;
 use crate::entities::instruction::InstructionData;
-use crate::entities::util::inst_operand_key::InstOperandKey;
+use crate::entities::instruction::{InstOperandKey, Instruction};
 use crate::entities::value::Value;
 use crate::pass::analysis::cfg::ControlFlowGraph;
 use crate::pass::analysis::domtree::DomTree;
@@ -134,7 +133,8 @@ impl<'a> GvnPass<'a> {
         replace_insts: &mut Vec<Instruction>,
         added_to_reduntant_map_insts: &mut HashSet<Instruction>,
     ) {
-        if let Some(inst_operand_key) = inst_data.to_inst_operand_key() {
+        let inst_key: Option<InstOperandKey> = inst_data.into();
+        if let Some(inst_operand_key) = inst_key {
             if let Some(already_computed_value) = self.reduntant_map.get(&inst_operand_key) {
                 // If instruction has already been compute, remove if and link it's result to value
                 // already computed
@@ -181,8 +181,8 @@ impl<'a> GvnPass<'a> {
         // mock table popup
         for inst in inst_added_this_level {
             // if inst has been added to redundant map, it must have a inst operand key
-            let key = function.get_inst_data(inst).to_inst_operand_key().unwrap();
-            self.reduntant_map.remove(&key);
+            let key: Option<InstOperandKey> = function.get_inst_data(inst).into();
+            self.reduntant_map.remove(&key.unwrap());
         }
     }
     fn replace_phi_insts_in_sucessors(&self, function: &mut Function, block: Block) {

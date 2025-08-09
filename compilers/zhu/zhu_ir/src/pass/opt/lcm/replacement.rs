@@ -3,8 +3,7 @@ use std::collections::{HashMap, HashSet};
 use crate::builder::FunctionBuilder;
 use crate::entities::block::Block;
 use crate::entities::function::Function;
-use crate::entities::instruction::{opcode::OpCode, InstructionData};
-use crate::entities::util::inst_operand_key::{insts_to_keys, InstOperandKey};
+use crate::entities::instruction::{insts_to_keys, opcode::OpCode, InstOperandKey, InstructionData};
 use crate::entities::util::set_operation::{intersection_sets, union_sets};
 use crate::entities::value::Value;
 use crate::pass::analysis::cfg::ControlFlowGraph;
@@ -106,8 +105,8 @@ impl<'a> ReplacementPass<'a> {
     }
     fn insert_insts_according_to_context(&mut self, function: &mut Function) {
         for (key, context) in &self.table {
-            let inst_data = key.to_inst_data();
-            let ty = key.get_value_type(function);
+            let inst_data: InstructionData = key.into();
+            let ty = key.get_result_value_type(function);
             for target_block in &context.insert_blocks {
                 let mut builder = FunctionBuilder::new(function);
                 builder.switch_to_block(*target_block);
@@ -136,7 +135,8 @@ impl<'a> ReplacementPass<'a> {
                 let phi_result = builder.phi_inst(phi_source);
                 // remove inst if match key in block
                 for inst in function.get_insts_of_block(*block) {
-                    if let Some(inst_key) = function.get_inst_data(inst).to_inst_operand_key() {
+                    let inst_key: Option<InstOperandKey> = function.get_inst_data(inst).into();
+                    if let Some(inst_key) = inst_key {
                         if *key == inst_key {
                             function.replace_inst(
                                 inst,
@@ -196,7 +196,8 @@ impl<'a> ReplacementPass<'a> {
         let mut insts = function.get_insts_of_block(current);
         insts.reverse();
         for inst in insts {
-            if let Some(key) = function.get_inst_data(inst).to_inst_operand_key() {
+            let inst_key: Option<InstOperandKey> = function.get_inst_data(inst).into();
+            if let Some(key) = inst_key {
                 if key == *target_key {
                     phi_souce.push((predecessor, function.get_inst_result(inst).unwrap()));
                     return;
