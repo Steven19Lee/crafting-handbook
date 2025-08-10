@@ -1,7 +1,7 @@
-use zsh_ir::builder::FunctionBuilder;
-use zsh_ir::entities::instruction::opcode::CmpFlag;
-use zsh_ir::entities::module::Module;
-use zsh_ir::entities::r#type::ValueType;
+use zhu_ir::builder::FunctionBuilder;
+use zhu_ir::entities::instruction::opcode::CmpFlag;
+use zhu_ir::entities::module::Module;
+use zhu_ir::entities::r#type::ValueType;
 
 const FUNC_NAME: &'static str = "phi_inst";
 

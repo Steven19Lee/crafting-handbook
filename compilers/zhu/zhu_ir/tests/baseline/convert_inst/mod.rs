@@ -1,6 +1,6 @@
-use zsh_ir::builder::FunctionBuilder;
-use zsh_ir::entities::module::Module;
-use zsh_ir::entities::r#type::ValueType;
+use zhu_ir::builder::FunctionBuilder;
+use zhu_ir::entities::module::Module;
+use zhu_ir::entities::r#type::ValueType;
 
 pub fn build_module() -> Module {
     let mut module = Module::new();

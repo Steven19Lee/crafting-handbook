@@ -2,9 +2,6 @@
 members = [
     # Fpr web-backend
     "website/backend",
-    ##########################
-    ####  Compiler Handbook
-    ##########################
     # For Calculator toy lang
     "compilers/calculator",
     # For rustyc
@@ -12,11 +9,10 @@ members = [
     "compilers/rustyc/backend",
     "compilers/rustyc/interpreter",
     "compilers/rustyc/optimizer",
-    # For mscript
-    # "compilers/mscript/vm",
-    # "compilers/mscript/optimizer"
+    # For Zhu IR
+    "compilers/zhu/zhu_ir",
+    "compilers/zhu/zhu_opt"
 
-    "compilers/zhu/zhu_ir"
 
 ]
 resolver = "2"

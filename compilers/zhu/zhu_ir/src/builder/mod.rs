@@ -31,7 +31,7 @@ impl<'a> FunctionBuilder<'a> {
 }
 /// General function for building instruction in given function IR.
 impl<'a> FunctionBuilder<'a> {
-    pub(crate) fn build_inst_and_result_entities(
+    pub fn build_inst_and_result_entities(
         &mut self,
         inst_data: InstructionData,
         ty: ValueType,

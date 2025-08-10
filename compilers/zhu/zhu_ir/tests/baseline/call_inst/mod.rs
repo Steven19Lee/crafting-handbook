@@ -1,6 +1,6 @@
-use zsh_ir::builder::FunctionBuilder;
-use zsh_ir::entities::module::Module;
-use zsh_ir::entities::r#type::ValueType;
+use zhu_ir::builder::FunctionBuilder;
+use zhu_ir::entities::module::Module;
+use zhu_ir::entities::r#type::ValueType;
 
 const CALL_INST_FUNC_NAME: &'static str = "call_inst";
 const RETURN_U8_NAME: &'static str = "return_u8";

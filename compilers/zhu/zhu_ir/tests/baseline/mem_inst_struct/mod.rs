@@ -1,7 +1,7 @@
-use zsh_ir::builder::FunctionBuilder;
-use zsh_ir::entities::immediate::{Immediate, Offset};
-use zsh_ir::entities::module::Module;
-use zsh_ir::entities::r#type::{MemTypeData, StructTypeData, StructTypeDataField, ValueType};
+use zhu_ir::builder::FunctionBuilder;
+use zhu_ir::entities::immediate::{Immediate, Offset};
+use zhu_ir::entities::module::Module;
+use zhu_ir::entities::r#type::{MemTypeData, StructTypeData, StructTypeDataField, ValueType};
 
 const FUNC_NAME: &'static str = "mem_inst_struct";
 

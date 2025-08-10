@@ -1,6 +1,6 @@
-use zsh_ir::entities::immediate::Offset;
-use zsh_ir::entities::r#type::ValueType;
-use zsh_ir::{
+use zhu_ir::entities::immediate::Offset;
+use zhu_ir::entities::r#type::ValueType;
+use zhu_ir::{
     builder::FunctionBuilder,
     entities::module::{DataDescription, Module},
 };

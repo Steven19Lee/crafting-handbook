@@ -16,6 +16,14 @@ pub mod opcode;
 /// A reference to instruction in a function.
 #[derive(Debug, PartialEq, Clone, Eq, Hash, Copy)]
 pub struct Instruction(pub u32);
+/// Data Entity to represent Instrcution in IR
+///
+/// Instruction Data is a reference container, for a instruction, it will reference
+/// to Value and other data entity in instruction, like immediate or constant.
+///
+/// This Data entity dose not store fully information for instruction, for example, type
+/// of this instruction right hand side or left hand side need to use `Function` instance
+/// to get the real data entity.
 #[derive(Debug, PartialEq, Clone)]
 pub enum InstructionData {
     // Const instruction
@@ -113,14 +121,32 @@ pub enum InstructionData {
     // comment,
     Comment(String),
 }
-
-trait InstructionCommon {
+/// Hashable and Euqalable version of `InstructionData` data entity.
+///
+/// ### Why Need this data entity ?
+/// Floating number can not implement totally eq (since NaN), but we will need to compare and
+/// equal `InstructionData` for some reason (like GVN or LCM pass), so we will need this data
+/// entity to store same information for `InstructionData` and keep hashable.
+///
+/// ### Caveat
+/// Only the InstructionData that
+#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+pub enum InstOperandKey {
+    Unary(OpCode, Value),
+    BinaryI(OpCode, Value, ImmediateKey),
+    Binary(OpCode, Value, Value),
+    Cmp(OpCode, CmpFlag, Value, Value),
+}
+/// Basic trait to get reference data in Instruction.
+pub trait InstructionCommon {
+    /// Get operand in Instruction
     fn get_operands(&self) -> Vec<Value>;
+    /// Is given operand in Instruction ?
     fn contain_operand(&self, value: Value) -> bool;
 }
 
-impl InstructionData {
-    pub fn get_operands(&self) -> Vec<Value> {
+impl InstructionCommon for &InstructionData {
+    fn get_operands(&self) -> Vec<Value> {
         match self {
             InstructionData::UnaryConst { .. } => vec![],
             InstructionData::Unary { value, .. } => vec![value.clone()],
@@ -142,7 +168,7 @@ impl InstructionData {
             InstructionData::Comment(_) => vec![],
         }
     }
-    pub fn contain_operand(&self, operand: Value) -> bool {
+    fn contain_operand(&self, operand: Value) -> bool {
         match self {
             InstructionData::UnaryConst { .. } => false,
             InstructionData::Unary { value, .. } => (*value) == operand,
@@ -166,12 +192,29 @@ impl InstructionData {
             InstructionData::Comment(_) => false,
         }
     }
+}
+
+impl InstructionCommon for InstructionData {
+    fn get_operands(&self) -> Vec<Value> {
+        (&self).get_operands()
+    }
+
+    fn contain_operand(&self, value: Value) -> bool {
+        (&self).contain_operand(value)
+    }
+}
+
+/// Extra method for InstructionData.
+impl InstructionData {
+    /// Is Unary Constant Instruction ?
     pub fn is_const(&self) -> bool {
         matches!(self, InstructionData::UnaryConst { .. })
     }
+    /// Is Branch instruction (Brif or Jump) ?
     pub fn is_branch(&self) -> bool {
         matches!(self, InstructionData::BrIf { .. } | InstructionData::Jump { .. })
     }
+    /// Is instruction will trigger side effect (Memory or global relate) ?
     pub fn has_side_effect(&self) -> bool {
         matches!(
             self,
@@ -188,14 +231,6 @@ impl InstructionData {
                 | InstructionData::StackAlloc { .. }
         )
     }
-}
-
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
-pub enum InstOperandKey {
-    Unary(OpCode, Value),
-    BinaryI(OpCode, Value, ImmediateKey),
-    Binary(OpCode, Value, Value),
-    Cmp(OpCode, CmpFlag, Value, Value),
 }
 
 impl InstOperandKey {
@@ -224,6 +259,7 @@ impl InstOperandKey {
             }
         }
     }
+    ///
     pub fn get_result_value_type(&self, function: &Function) -> ValueType {
         match self {
             InstOperandKey::Unary(op_code, value) => function.value_type(*value).clone(),
@@ -234,38 +270,18 @@ impl InstOperandKey {
     }
 }
 
-impl From<InstOperandKey> for InstructionData {
-    fn from(key: InstOperandKey) -> Self {
-        match key {
-            InstOperandKey::Unary(op_code, value) => InstructionData::Unary { opcode: op_code, value },
-            InstOperandKey::BinaryI(op_code, value, imm_key) => InstructionData::BinaryI {
-                opcode: op_code,
-                value,
-                imm: imm_key.into(),
-            },
-            InstOperandKey::Binary(op_code, value, value1) => InstructionData::Binary {
-                opcode: op_code,
-                args: [value, value1],
-            },
-            InstOperandKey::Cmp(op_code, cmp_flag, value, value1) => match op_code {
-                OpCode::Fcmp => InstructionData::Fcmp {
-                    opcode: op_code,
-                    flag: cmp_flag,
-                    args: [value, value1],
-                },
-                OpCode::Icmp => InstructionData::Icmp {
-                    opcode: op_code,
-                    flag: cmp_flag,
-                    args: [value, value1],
-                },
-                _ => unreachable!(),
-            },
-        }
+impl AsRef<InstOperandKey> for InstOperandKey {
+    fn as_ref(&self) -> &InstOperandKey {
+        self
     }
 }
 
-impl From<&InstOperandKey> for InstructionData {
-    fn from(key: &InstOperandKey) -> Self {
+impl<T> From<T> for InstructionData
+where
+    T: AsRef<InstOperandKey>,
+{
+    fn from(key: T) -> Self {
+        let key = key.as_ref();
         match key {
             InstOperandKey::Unary(op_code, value) => InstructionData::Unary {
                 opcode: *op_code,
@@ -297,6 +313,12 @@ impl From<&InstOperandKey> for InstructionData {
     }
 }
 
+impl AsRef<InstructionData> for InstructionData {
+    fn as_ref(&self) -> &InstructionData {
+        self
+    }
+}
+
 impl Into<Option<InstOperandKey>> for &InstructionData {
     fn into(self) -> Option<InstOperandKey> {
         match self {
@@ -315,18 +337,10 @@ impl Into<Option<InstOperandKey>> for &InstructionData {
 
 impl Into<Option<InstOperandKey>> for InstructionData {
     fn into(self) -> Option<InstOperandKey> {
-        match self {
-            InstructionData::Unary { opcode, value } => Some(InstOperandKey::Unary(opcode, value)),
-            InstructionData::BinaryI { opcode, value, imm } => Some(InstOperandKey::BinaryI(opcode, value, imm.into())),
-            InstructionData::Convert { opcode, src } => Some(InstOperandKey::Unary(opcode, src)),
-            InstructionData::Binary { opcode, args } => Some(InstOperandKey::Binary(opcode, args[0], args[1])),
-            InstructionData::Icmp { opcode, flag, args } => Some(InstOperandKey::Cmp(opcode, flag, args[0], args[1])),
-            InstructionData::Fcmp { opcode, flag, args } => Some(InstOperandKey::Cmp(opcode, flag, args[0], args[1])),
-            _ => None,
-        }
+        (&self).into()
     }
 }
-
+/// Helper function for convert set of `Instruction` in function to `InstructionKey`
 pub fn insts_to_keys(insts: Vec<Instruction>, function: &Function) -> HashSet<InstOperandKey> {
     let mut keys = HashSet::new();
     for inst in insts {

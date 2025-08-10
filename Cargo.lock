@@ -1731,10 +1731,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "zsh_ir"
+name = "zhu_ir"
 version = "0.1.0"
 dependencies = [
  "colored",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "zhu_opt"
+version = "0.1.0"
+dependencies = [
+ "colored",
+ "serde",
+ "serde_json",
+ "zhu_ir",
 ]

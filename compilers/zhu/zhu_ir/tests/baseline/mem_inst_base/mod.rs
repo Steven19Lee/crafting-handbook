@@ -1,7 +1,7 @@
-use zsh_ir::entities::immediate::Immediate;
-use zsh_ir::entities::immediate::Offset;
-use zsh_ir::entities::r#type::ValueType;
-use zsh_ir::{builder::FunctionBuilder, entities::module::Module};
+use zhu_ir::entities::immediate::Immediate;
+use zhu_ir::entities::immediate::Offset;
+use zhu_ir::entities::r#type::ValueType;
+use zhu_ir::{builder::FunctionBuilder, entities::module::Module};
 
 const FUNC_NAME: &'static str = "mem_inst_base";
 

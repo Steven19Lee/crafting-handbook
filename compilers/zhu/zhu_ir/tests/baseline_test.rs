@@ -4,11 +4,11 @@ mod baseline;
 use std::env::current_dir;
 use std::fs::read_to_string;
 use std::path::PathBuf;
-use zsh_ir::builder::FunctionBuilder;
-use zsh_ir::entities::module::ModuleLevelId;
-use zsh_ir::entities::r#type::ValueType;
-use zsh_ir::formatter::format;
-use zsh_ir::frontend::parse;
+use zhu_ir::builder::FunctionBuilder;
+use zhu_ir::entities::module::ModuleLevelId;
+use zhu_ir::entities::r#type::ValueType;
+use zhu_ir::formatter::format;
+use zhu_ir::frontend::parse;
 
 fn get_baseline_folder_path() -> PathBuf {
     current_dir().unwrap().join("tests/baseline")
