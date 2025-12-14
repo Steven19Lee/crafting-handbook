@@ -38,7 +38,7 @@ impl Lattice {
                         ValueType::I64 => todo!(),
                         ValueType::F32 => todo!(),
                         ValueType::F64 => todo!(),
-                        ValueType::Mem(mem_type) => unreachable!(),
+                        ValueType::Mem(_) => unreachable!(),
                     },
                     // result must from a unary const instruction.
                     ValueData::Param { .. } => unreachable!(),

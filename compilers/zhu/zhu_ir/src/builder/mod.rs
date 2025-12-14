@@ -162,7 +162,6 @@ impl<'a> FunctionBuilder<'a> {
                 .function
                 .entities
                 .create_value(ValueData::Inst { inst, ty: ty.clone() });
-            println!("??");
             self.function.entities.mark_inst_result(result, inst);
             Some(result)
         } else {
@@ -650,5 +649,19 @@ impl<'a> FunctionBuilder<'a> {
             .layout
             .unshift_inst(inst, self.current_block.clone().unwrap());
         result
+    }
+    pub fn phi_inst_with_empty_from(&mut self, ty: ValueType) -> Instruction {
+        let block = self.get_current_block();
+        let inst = self.function.entities.create_inst(InstructionData::Phi {
+            opcode: OpCode::Phi,
+            from: vec![],
+        });
+        let result = self.function.entities.create_value(ValueData::Inst { inst, ty });
+        self.function.entities.mark_phi_block(inst, block);
+        self.function.entities.mark_inst_result(result, inst);
+        self.function
+            .layout
+            .unshift_inst(inst, self.current_block.clone().unwrap());
+        inst
     }
 }
